@@ -8,7 +8,7 @@ run: ${TARGET}
 	@${RUN} ${<:.class=}
 
 %.class: %.java
-	@${CC} $<
+	@${CC} -Xlint:unchecked $<
 
 clean:
 	@rm -f *.class

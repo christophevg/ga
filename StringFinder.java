@@ -102,8 +102,7 @@ public class StringFinder {
         break;
       }
       this.mate();
-      this.population = 
-        (ArrayList<GA>)((ArrayList<GA>)this.nextGeneration).clone();
+      this.acceptNextGeneration();
     }
   }
 
@@ -119,9 +118,9 @@ public class StringFinder {
   }
   
   private void sortPopulation() {
-    Collections.sort(this.population, new Comparator(){
-      public int compare(Object ga1, Object ga2) {
-        return ( ((GA)ga1).getFitness() < ((GA)ga2).getFitness() ) ? 0 : 1;
+    Collections.sort(this.population, new Comparator<GA>(){
+      public int compare(GA ga1, GA ga2) {
+        return ( ga1.getFitness() < ga2.getFitness() ) ? 0 : 1;
       }
     } );
   }
@@ -139,6 +138,13 @@ public class StringFinder {
         this.mutate(offspring);
       }
       this.nextGeneration.add(offspring);
+    }
+  }
+  
+  private void acceptNextGeneration() {
+    this.population.clear();
+    for( GA ga : this.nextGeneration ) {
+      this.population.add(ga);
     }
   }
 
