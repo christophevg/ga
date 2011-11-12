@@ -25,74 +25,55 @@ public class StringFinder {
 
   private final  Random random = new Random();
 
-  private class GA {
-    private int    length;
-    private String string;
-    private int    fitness;
-    private final Random random = new Random();
-    
-    public GA(int length) {
-      this.length  = length;
-      this.string  = ""; 
-      this.fitness = 0;
-    }
+  private List<GA<Character>> population     = new ArrayList<GA<Character>>();
+  private List<GA<Character>> nextGeneration = new ArrayList<GA<Character>>();
 
-    public GA(String string) {
-      this.length  = string.length();
-      this.string  = string; 
-      this.fitness = 0;
-    }
-    
-    public void generateRandomString() {
-      for(int i=0; i<this.length;i++ ) {
-        int rand = this.random.nextInt(90);
-        this.string += (char)(rand+32);
-      }
-    }
-    
-    public String getString() {
-      return this.string;
-    }
-
-    public void setString(String string) {
-      this.string = string;
-    }
-    
-    public void assignFitness(int fitness) {
-      this.fitness = fitness;
-    }
-
-    public int getFitness() {
-      return this.fitness;
-    }
-
-    public String toString() {
-      return this.string + " : " + this.fitness;
-    }
-  }
-
-  private List<GA> population     = new ArrayList<GA>();
-  private List<GA> nextGeneration = new ArrayList<GA>();
+  private FitnessFunction<Character> fitnessFunction;
 
   public StringFinder(String string) {
     this.target = string;
     this.targetLength = string.length();
 
+    this.createFitnessFunction();
     this.initPopulation();
     this.breed();
   }
   
+  private void createFitnessFunction() {
+    this.fitnessFunction = new FitnessFunction<Character>() {
+      private String target;
+      public void setTarget(Object target) {
+        this.target = (String)target;
+      }
+      public int calculate(GA<Character> ga) {
+        int fitness = 0;
+        for( int c=0; c < ga.getLength(); c++ ) {
+          fitness += (ga.getCell(c) == this.target.charAt(c)) ? 0 : 1;
+        }
+        return fitness;
+      }
+    };
+    this.fitnessFunction.setTarget(this.target);
+  }
+  
   private void initPopulation() {
     for( int i=0; i<this.popSize; i++ ) {
-      GA ga = new GA(this.targetLength);
-      ga.generateRandomString();
+      GA<Character> ga = this.createGA();
+      // populate with random string
+      for(int c=0; c<this.targetLength; c++ ) {
+        int rand = this.random.nextInt(90);
+        ga.add((char)(rand+32));
+      }
       this.population.add(ga);
     }
   }
   
+  private GA<Character> createGA() {
+    return new GA<Character>( this.fitnessFunction );
+  }
+  
   private void breed() {
     for( int i=0; i<this.maxIterations; i++ ) {
-      this.calcFitness();
       this.sortPopulation();
       if( i % 100 == 0 ) {
         System.out.println( i + ". " + this.population.get(0) );
@@ -106,17 +87,6 @@ public class StringFinder {
     }
   }
 
-  private void calcFitness() {
-    for( GA ga : this.population ) {
-      String string = ga.getString();
-      int fitness = 0;
-      for( int c=0; c < this.targetLength; c++ ) {
-        fitness += (string.charAt(c) == this.target.charAt(c)) ? 0 : 1;
-      }
-      ga.assignFitness(fitness);
-    }
-  }
-  
   private void sortPopulation() {
     Collections.sort(this.population, new Comparator<GA>(){
       public int compare(GA ga1, GA ga2) {
@@ -128,12 +98,13 @@ public class StringFinder {
   private void mate() {
     this.selectElite();
     for( int i=this.eliteSize; i<this.popSize; i++ ) {
-      GA mate1 = this.population.get(this.random.nextInt(this.popSize/2));
-      GA mate2 = this.population.get(this.random.nextInt(this.popSize/2));
+      int half = this.popSize/2;
+      GA<Character> mate1 = this.population.get(this.random.nextInt(half));
+      GA<Character> mate2 = this.population.get(this.random.nextInt(half));
       int split = this.random.nextInt(this.targetLength);
-      String part1 = mate1.getString().substring(0, split);
-      String part2 = mate2.getString().substring(split, this.targetLength);
-      GA offspring = new GA(part1 + part2);
+      GA<Character> offspring = this.createGA();
+      offspring.add(mate1.getPart(0, split));
+      offspring.add(mate2.getPart(split, this.targetLength));
       if( this.random.nextInt() < this.mutationLimit ) {
         this.mutate(offspring);
       }
@@ -143,28 +114,19 @@ public class StringFinder {
   
   private void acceptNextGeneration() {
     this.population.clear();
-    for( GA ga : this.nextGeneration ) {
-      this.population.add(ga);
-    }
+    this.population.addAll(this.nextGeneration);
   }
 
-  private int selectElite() {
+  private void selectElite() {
     this.nextGeneration.clear();
-    for( int i=0; i< this.eliteSize; i++ ) {
-      this.nextGeneration.add(this.population.get(i));
-    }
-    return eliteSize;
+    this.nextGeneration.addAll(this.population.subList(0, this.eliteSize));
   }
 
-  private void mutate(GA ga) {
-    int pos    = this.random.nextInt(this.targetLength);
+  private void mutate(GA<Character> ga) {
+    int pos    = this.random.nextInt(ga.getLength());
     int change = this.random.nextInt(90) + 32;
-    String string = ga.getString();
-    char newChar = (char)((((int)string.charAt(pos)) + change) % 122);
-    StringBuffer buf = new StringBuffer( string );
-    buf.setCharAt(pos, newChar);
-    ga.setString(buf.toString());
-    
+    char newChar = (char)((((int)ga.getCell(pos)) + change) % 122);
+    ga.setCell(pos, newChar);
   }
   
   public static void main(String[] args) {
