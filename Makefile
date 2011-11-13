@@ -1,6 +1,6 @@
 CC=javac
 RUN=java
-TARGET=NumberFinder.class
+TARGET=NeuralRunner.class
 
 all: ${TARGET}
 
