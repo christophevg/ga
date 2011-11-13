@@ -34,13 +34,21 @@ public class StringFinder {
     this.target = string;
     this.targetLength = string.length();
 
-    this.createFitnessFunction();
+    this.setupFitnessFunction();
+  }
+
+  public void start() {
     this.initPopulation();
     this.breed();
   }
+
+  private void setupFitnessFunction() {
+    this.fitnessFunction = this.createFitnessFunction();
+    this.fitnessFunction.setTarget(this.target);
+  }
   
-  private void createFitnessFunction() {
-    this.fitnessFunction = new FitnessFunction<Character>() {
+  private FitnessFunction<Character> createFitnessFunction() {
+    return new FitnessFunction<Character>() {
       private String target;
       public void setTarget(Object target) {
         this.target = (String)target;
@@ -53,7 +61,6 @@ public class StringFinder {
         return fitness;
       }
     };
-    this.fitnessFunction.setTarget(this.target);
   }
   
   private void initPopulation() {
@@ -134,6 +141,7 @@ public class StringFinder {
                  "before it really takes too many iterations to find an " +
                  "optimal solution. So far, it feels acceptable, but how " +
                  "far can I push this? The string/bytecode for a VM that " +
-                 "can drive a robot will probably be longer?" );
+                 "can drive a robot will probably be longer?" )
+      .start();
   }
 }

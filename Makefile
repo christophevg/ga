@@ -8,6 +8,7 @@ run: ${TARGET}
 	@${RUN} ${<:.class=}
 
 %.class: %.java
+	@echo "*** building $<"
 	@${CC} -Xlint:unchecked $<
 
 clean:
