@@ -53,10 +53,12 @@ public class GA<T> {
   }
 
   public String toString() {
-    StringBuilder b = new StringBuilder();
+    StringBuilder sb = new StringBuilder();
+    String delim = "";
     for( T c: this.cells ) { 
-      b.append(c);
+      sb.append(delim).append(c);
+      delim = ", ";
     }
-    return b + " : " + this.getFitness();
+    return sb + " : " + this.getFitness();
   }
 }
