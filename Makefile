@@ -1,6 +1,6 @@
 CC=javac
 RUN=java
-TARGET=StringFinder.class
+TARGET=CharacterFinder.class
 
 all: ${TARGET}
 
