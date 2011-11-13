@@ -20,9 +20,6 @@ abstract public class GAFinder<T> {
   private double mutationRate   = 0.65;
   private int    mutationLimit  = (int)(Integer.MAX_VALUE * mutationRate);
 
-  private String target         = "";
-  private int    targetLength   = 0;
-
   private final  Random random = new Random();
 
   private List<GA<T>> population     = new ArrayList<GA<T>>();
@@ -30,13 +27,10 @@ abstract public class GAFinder<T> {
 
   private FitnessFunction<T> fitnessFunction;
 
-  public GAFinder(String string) {
-    this.target = string;
-    this.targetLength = string.length();
-
-    this.setupFitnessFunction();
+  public GAFinder() {
+    this.fitnessFunction = this.createFitnessFunction();
   }
-
+  
   public void start() {
     this.initPopulation();
     this.breed();
@@ -44,10 +38,6 @@ abstract public class GAFinder<T> {
 
   protected int getPopSize() {
     return this.popSize;
-  }
-
-  protected int getTargetLength() {
-    return this.targetLength;
   }
 
   protected GA<T> createGA() {
@@ -66,14 +56,10 @@ abstract public class GAFinder<T> {
     this.population.add(ga);
   }
 
+  abstract protected int getTargetLength();
   abstract protected FitnessFunction<T> createFitnessFunction();
   abstract protected void initPopulation();
   abstract protected void mutate(GA<T> ga);
-
-  private void setupFitnessFunction() {
-    this.fitnessFunction = this.createFitnessFunction();
-    this.fitnessFunction.setTarget(this.target);
-  }
 
   private void breed() {
     for( int i=0; i<this.maxIterations; i++ ) {
@@ -104,10 +90,10 @@ abstract public class GAFinder<T> {
       int half = this.popSize/2;
       GA<T> mate1 = this.population.get(this.getRandomInt(half));
       GA<T> mate2 = this.population.get(this.getRandomInt(half));
-      int split = this.getRandomInt(this.targetLength);
+      int split   = this.getRandomInt(this.getTargetLength());
       GA<T> offspring = this.createGA();
       offspring.add(mate1.getPart(0, split));
-      offspring.add(mate2.getPart(split, this.targetLength));
+      offspring.add(mate2.getPart(split, this.getTargetLength()));
       if( this.getRandomInt() < this.mutationLimit ) {
         this.mutate(offspring);
       }

@@ -8,14 +8,22 @@ public class CharacterFinder {
 
   public static void main(String[] args) {
 
-    GAFinder<Character> finder = new GAFinder<Character>(
-      "A long string, to test how long a string can " +
-      "become, before it really takes too many iterations to find an " +
-      "optimal solution. So far, it feels acceptable, but how far can " + 
-      "I push this? The string/bytecode for a VM that can drive a robot " +
-      " will probably be longer?"
-    )
-    {
+    GAFinder<Character> finder = new GAFinder<Character>() {
+      // a long string
+      protected String getTarget() {
+        return 
+        "A long string, to test how long a string can " +
+        "become, before it really takes too many iterations to find an " +
+        "optimal solution. So far, it feels acceptable, but how far can " + 
+        "I push this? The string/bytecode for a VM that can drive a robot " +
+        " will probably be longer?";
+      }
+
+      // the length of our string
+      protected int getTargetLength() {
+        return this.getTarget().length();
+      }
+
       // create a population of random strings
       protected void initPopulation() {
         for( int i=0; i<this.getPopSize(); i++ ) {
@@ -36,9 +44,9 @@ public class CharacterFinder {
         ga.setCell(pos, newChar);
       }
 
-      // fitness = count of correct characters
+      // fitness = count of wrong characters (zero = optimum)
       protected FitnessFunction<Character> createFitnessFunction() {
-        return new FitnessFunction<Character>() {
+        FitnessFunction<Character> fitness = new FitnessFunction<Character>(){
           private String target;
           public void setTarget(Object target) {
             this.target = (String)target;
@@ -51,6 +59,8 @@ public class CharacterFinder {
             return fitness;
           }
         };
+        fitness.setTarget(this.getTarget());
+        return fitness;
       }
     };
 
