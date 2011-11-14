@@ -4,8 +4,6 @@
 * Generic implementation of a genetic algorithm, based on a list of cells,
 * of which the type can be specified through the generic parameter.
 * 
-* @param <T> the type of value being stored in the GA
-* 
 * Author: Christophe VG
 */
 

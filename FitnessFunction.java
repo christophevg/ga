@@ -8,6 +8,5 @@
  */
 
 public interface FitnessFunction<T> {
-  public void setTarget(Object target);
-  public int  calculate(GA<T> ga);
+  public int calculate(GA<T> ga);
 }

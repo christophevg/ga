@@ -56,7 +56,6 @@ abstract public class GAFinder<T> {
     this.population.add(ga);
   }
 
-  abstract protected int getTargetLength();
   abstract protected FitnessFunction<T> createFitnessFunction();
   abstract protected void initPopulation();
   abstract protected void mutate(GA<T> ga);
@@ -90,10 +89,10 @@ abstract public class GAFinder<T> {
       int half = this.popSize/2;
       GA<T> mate1 = this.population.get(this.getRandomInt(half));
       GA<T> mate2 = this.population.get(this.getRandomInt(half));
-      int split   = this.getRandomInt(this.getTargetLength());
+      int split   = this.getRandomInt(mate1.getLength());
       GA<T> offspring = this.createGA();
       offspring.add(mate1.getPart(0, split));
-      offspring.add(mate2.getPart(split, this.getTargetLength()));
+      offspring.add(mate2.getPart(split, mate2.getLength()));
       if( this.getRandomInt() < this.mutationLimit ) {
         this.mutate(offspring);
       }
