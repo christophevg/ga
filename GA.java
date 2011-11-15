@@ -15,6 +15,7 @@ public class GA<T> {
 
   private ArrayList<T> cells;
   private FitnessFunction<T> ff;
+  private int fitness = -1;
 
   public GA(FitnessFunction<T> ff) {
     this.ff = ff;
@@ -43,11 +44,21 @@ public class GA<T> {
   }
 
   public T setCell(int i, T cell) {
+    this.resetFitness();
     return this.cells.set(i, cell);
+  }
+  
+  public List<T> getCells() {
+    return this.cells;
   }
 
   public int getFitness() {
-    return this.ff.calculate(this);
+    // we're caching the fitness, because this method is call _many_ times
+    // by the sortPopulation/sort/compare functionality
+    if( ! this.hasFitness() ) {
+      this.fitness = this.ff.calculate(this);
+    }
+    return this.fitness;
   }
 
   public String toString() {
@@ -58,5 +69,13 @@ public class GA<T> {
       delim = ", ";
     }
     return sb + " : " + this.getFitness();
+  }
+  
+  private void resetFitness() {
+    this.fitness = -1;
+  }
+
+  private Boolean hasFitness() {
+    return this.fitness != -1;
   }
 }
