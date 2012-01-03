@@ -1,15 +1,18 @@
-CC=javac
-RUN=java
-TARGET=NumberFinderRunner.class
+BUILD_DIR=build
+CC=javac -d ${BUILD_DIR}
+RUN=java -cp ${BUILD_DIR}
+APP=NumberFinderRunner
+TARGET=build/${APP}.class
 
 all: ${TARGET}
 
 run: ${TARGET}
-	@${RUN} ${<:.class=}
+	@${RUN} ${APP}
 
-%.class: %.java
+build/%.class: %.java
+	@mkdir -p build
 	@echo "*** building $<"
 	@${CC} -Xlint:unchecked $<
 
 clean:
-	@rm -f *.class
+	@rm -rf build
